@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: name
+Resources:
+  WebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: name-WAF
+      Scope: REGIONAL
+      Description: This is the Peoplesoft92 ALB WAF
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: name-ALB-WAF
+  WebACLAssociation:
+      Type: AWS::WAFv2::WebACLAssociation
+      Properties: 
+        ResourceArn: arn:aws:elasticloadbalancing:eu-west-3:812617625241:loadbalancer/app/awseb-AWSEB-FV1X09T0MPIC/a2364ba3fb49e924 
+        WebACLArn: !GetAtt WebACL.Arn

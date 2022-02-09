@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to Create an SNS Topic and Subscriptions
+
+Parameters:
+
+  EmailSubscription1:
+    Type: String
+    Description: Emails à qui envoyer les notifications
+    Default: raphael.weys@yem-energy.com
+  EmailSubscription2:
+    Type: String
+    Description: Emails à qui envoyer les notifications
+    Default: antoine.beloeuvre@yem-energy.com
+
+
+Resources:
+
+  MySNSTopic: 
+    Type: AWS::SNS::Topic
+    Properties: 
+      Subscription: 
+        - Endpoint: !Ref EmailSubscription1
+          Protocol: "email"
+        - Endpoint: !Ref EmailSubscription2
+          Protocol: "email"
+      TopicName: FailurePipelineTopic
+
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: "Faillure_Pipeline"
+      Description: "Signale losque la pipeline est en erreur"
+      EventPattern:
+        source:
+          - aws.codepipeline
+        detail-type:
+          - CodePipeline Stage Execution State Change
+        detail:
+          state:
+            - FAILED
+            - CANCELED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: MySNSTopic
+          Id: PipelineNotificationTopic
+          InputTransformer:
+            InputTemplate: 'Dans la Pipeline <pipeline> l étape <stage> est en status: <state>. Vous pouvez la consulter ici https://<region>.console.aws.amazon.com/codesuite/codepipeline/pipelines/<pipeline>/view '
+            InputPathsMap:
+              pipeline: "$.detail.pipeline"
+              state: "$.detail.state"
+              stage: "$.detail.stage"
+              region: "$.region"
+

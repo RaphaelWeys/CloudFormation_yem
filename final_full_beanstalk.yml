@@ -1,0 +1,1964 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CI/CD pipeline for GitHub projects
+
+# input Configuration #
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Parametres globaux"
+        Parameters: 
+          - CodeBuildEnvironmentImage
+          - MyEnv
+      - 
+        Label: 
+          default: "Portal Frontend"
+        Parameters: 
+          - GitHubOwner
+          - GitHubRepository
+          - GitHubBranch
+          - GitHubOAuthToken
+          - NameEnvironement
+          - DomainName
+      - 
+        Label: 
+          default: "Portal Backend"
+        Parameters: 
+          - GitHubOwner2
+          - GitHubRepository2
+          - GitHubBranch2
+          - GitHubOAuthToken2
+          - NameEnvironement2
+          - DomainName2
+      - 
+        Label: 
+          default: "Follow Frontend"
+        Parameters: 
+          - GitHubOwner3
+          - GitHubRepository3
+          - GitHubBranch3
+          - GitHubOAuthToken3
+          - NameEnvironement3
+          - DomainName3
+      - 
+        Label: 
+          default: "Follow Backend"
+        Parameters: 
+          - GitHubOwner4
+          - GitHubRepository4
+          - GitHubBranch4
+          - GitHubOAuthToken4
+          - NameEnvironement4
+          - DomainName4
+      - 
+        Label: 
+          default: "Marketplace Frontend"
+        Parameters: 
+          - GitHubOwner5
+          - GitHubRepository5
+          - GitHubBranch5
+          - GitHubOAuthToken5
+          - NameEnvironement5
+          - DomainName5
+      - 
+        Label: 
+          default: "Marketplace Backend"
+        Parameters: 
+          - GitHubOwner6
+          - GitHubRepository6
+          - GitHubBranch6
+          - GitHubOAuthToken6
+          - NameEnvironement6
+          - DomainName6
+    ParameterLabels:
+      MyEnv:
+        default: "Environnement"
+      NameEnvironement:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner: 
+        default: "Nom du compte github :"
+      GitHubRepository: 
+        default: "Nom du repository github :"
+      GitHubBranch: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken: 
+        default: "Token OAuth du compte github"
+      DomainName:
+        default: "Url de l'environement :"
+      CodeBuildEnvironmentImage: 
+        default: "Docker images provided by CodeBuild : default://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
+      #instance 2#
+      NameEnvironement2:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner2: 
+        default: "Nom du compte github :"
+      GitHubRepository2: 
+        default: "Nom du repository github :"
+      GitHubBranch2: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken2: 
+        default: "Token OAuth du compte github"
+      DomainName2:
+        default: "Url de l'environement :"
+      #instance 3#
+      NameEnvironement3:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner3: 
+        default: "Nom du compte github :"
+      GitHubRepository3: 
+        default: "Nom du repository github :"
+      GitHubBranch3: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken3: 
+        default: "Token OAuth du compte github"
+      DomainName3:
+        default: "Url de l'environement :"
+      #instance 4#
+      NameEnvironement4:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner4: 
+        default: "Nom du compte github :"
+      GitHubRepository4: 
+        default: "Nom du repository github :"
+      GitHubBranch4: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken4: 
+        default: "Token OAuth du compte github"
+      DomainName4:
+        default: "Url de l'environement :"
+      #instance 5#
+      NameEnvironement5:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner5: 
+        default: "Nom du compte github :"
+      GitHubRepository5: 
+        default: "Nom du repository github :"
+      GitHubBranch5: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken5: 
+        default: "Token OAuth du compte github"
+      DomainName5:
+        default: "Url de l'environement :"
+      #instance 6#
+      NameEnvironement6:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner6: 
+        default: "Nom du compte github :"
+      GitHubRepository6: 
+        default: "Nom du repository github :"
+      GitHubBranch6: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken6: 
+        default: "Token OAuth du compte github"
+      DomainName6:
+        default: "Url de l'environement :"
+Parameters:
+  MyEnv:
+    Type: String
+    Default: "Development"
+    AllowedValues: 
+      - "Development"
+      - "Production"
+      - "QA"
+  GitHubOwner:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: portal-front
+  GitHubBranch:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: develop
+  CodeBuildEnvironmentImage:
+    Type: String
+    Default: 'aws/codebuild/standard:5.0'
+  GitHubOAuthToken: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: portal-front-dev
+  DomainName:
+    Type: String
+    Default: portal-front.dev.yem-aws.net
+  ### instance 2 ####
+  GitHubOwner2:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository2:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: portal-backend
+  GitHubBranch2:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: development
+  GitHubOAuthToken2: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement2:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: portal-back-dev
+  DomainName2:
+    Type: String
+    Default: portal-back.dev.yem-aws.net
+  ### instance 3 ####
+  GitHubOwner3:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository3:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: follow-front
+  GitHubBranch3:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: development
+  GitHubOAuthToken3: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement3:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: follow-front-dev
+  DomainName3:
+    Type: String
+    Default: follow-front.dev.yem-aws.net
+  ### instance 4 ####
+  GitHubOwner4:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository4:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: follow-backend
+  GitHubBranch4:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: development
+  GitHubOAuthToken4: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement4:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: follow-back-dev
+  DomainName4:
+    Type: String
+    Default: follow-back.dev.yem-aws.net
+  ### instance 5 ####
+  GitHubOwner5:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository5:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: marketplace-react
+  GitHubBranch5:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: develop
+  GitHubOAuthToken5: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement5:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: marketplace-front-dev
+  DomainName5:
+    Type: String
+    Default: marketplace-front.dev.yem-aws.net
+  ### instance 6 ####
+  GitHubOwner6:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: yemenergy
+  GitHubRepository6:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: tender-backend
+  GitHubBranch6:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: development
+  GitHubOAuthToken6: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement6:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: marketplace-back-dev
+  DomainName6:
+    Type: String
+    Default: marketplace-back.dev.yem-aws.net
+# input Configuration #
+
+
+Mappings:
+  SubnetConfig:
+    VPC:
+      CIDR: 10.0.0.0/16
+    Public:
+      CIDR: 10.0.0.0/24
+    Private:
+      CIDR: 10.0.1.0/24
+
+
+
+Resources:
+# Add Permission IAM #
+  ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - codebuild.amazonaws.com
+                - ec2.amazonaws.com
+                - codepipeline.amazonaws.com
+                - elasticloadbalancing.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  WebServerInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref ServiceRole
+  # Add Permission IAM #
+
+    #vpc #
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !FindInMap 
+        - SubnetConfig
+        - VPC
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  PublicSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: "eu-west-3a"
+      CidrBlock: !FindInMap 
+        - SubnetConfig
+        - Public
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: "eu-west-3c"
+      CidrBlock: 10.0.32.0/24
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  GatewayToInternet:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+  PublicNetworkAcl:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Public
+  InboundHTTPPublicNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PublicNetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '80'
+        To: '80'
+  InboundHTTPSPublicNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PublicNetworkAcl
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '443'
+        To: '443'
+  InboundSSHPublicNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PublicNetworkAcl
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '22'
+        To: '22'
+  InboundEphemeralPublicNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PublicNetworkAcl
+      RuleNumber: '103'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '1024'
+        To: '65535'
+  OutboundPublicNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PublicNetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '0'
+        To: '65535'
+  PublicSubnetNetworkAclAssociation:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      NetworkAclId: !Ref PublicNetworkAcl
+  PublicSubnetNetworkAclAssociation1:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      NetworkAclId: !Ref PublicNetworkAcl
+  PrivateSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: "eu-west-3a"
+      CidrBlock: !FindInMap 
+        - SubnetConfig
+        - Private
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Private
+  PrivateSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: "eu-west-3c"
+      CidrBlock: 10.0.16.0/24
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Private
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Private
+  PrivateSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !Ref PrivateRouteTable
+  PrivateSubnetRouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+  PrivateRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      InstanceId: !Ref NATDevice
+  PrivateNetworkAcl:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Network
+          Value: Private
+  InboundPrivateNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PrivateNetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '0'
+        To: '65535'
+  OutBoundPrivateNetworkAclEntry:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      NetworkAclId: !Ref PrivateNetworkAcl
+      RuleNumber: '100'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '0'
+        To: '65535'
+  PrivateSubnetNetworkAclAssociation:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      NetworkAclId: !Ref PrivateNetworkAcl
+  PrivateSubnetNetworkAclAssociation1:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      NetworkAclId: !Ref PrivateNetworkAcl
+  NATIPAddress:
+    Type: 'AWS::EC2::EIP'
+    DependsOn: GatewayToInternet
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref NATDevice
+  NATDevice:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.nano
+      SubnetId: !Ref PublicSubnet
+      SourceDestCheck: 'false'
+      ImageId: ami-0641e4dfc1427f114
+      SecurityGroupIds:
+        - !Ref NATSecurityGroup
+  NATSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable internal access to the NAT device
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          SourceSecurityGroupId: !Ref BeanstalkSecurityGroup
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          SourceSecurityGroupId: !Ref BeanstalkSecurityGroup
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+  BastionIPAddress:
+    Type: 'AWS::EC2::EIP'
+    DependsOn: GatewayToInternet
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref BastionHost
+  BastionHost:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.nano
+      KeyName: webmin
+      SubnetId: !Ref PublicSubnet
+      ImageId: ami-0caf07637eda19d9c
+      SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+  BastionSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable access to the Bastion host
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !FindInMap 
+            - SubnetConfig
+            - Private
+            - CIDR
+  BeanstalkSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Allow the Elastic Beanstalk instances to access the NAT device
+      VpcId: !Ref VPC
+  #vpc#
+
+
+  # Set Codebuild environment #
+  CodeBuilProject:
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Name: !Ref 'AWS::StackName'
+      ServiceRole: !GetAtt 
+        - ServiceRole
+        - Arn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Ref CodeBuildEnvironmentImage
+        EnvironmentVariables:
+        - Name: env
+          Type: PLAINTEXT
+          Value: !Ref MyEnv
+        - Name: INLINE_RUNTIME_CHUNK
+          Type: PLAINTEXT
+          Value: false
+  # Set Codebuild environment #
+
+  # Set S3 store for pipeline #
+  CodePipelineArtifactStore:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+  # Set S3 store for pipeline #
+
+
+
+###
+################################
+######################################
+######### Instance 1 ################
+######################################
+######################################
+###
+  
+  # Add Elastic Beanstalk #
+  sampleApplication:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP         
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 200
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ portal-front, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner
+                Repo: !Ref GitHubRepository
+                Branch: !Ref GitHubBranch
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication
+                EnvironmentName: !Ref Environment
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          ValidationDomain: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Ref DomainName
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 1 ################
+######################################
+######################################
+###
+
+
+###
+################################
+######################################
+######### Instance 2 ################
+######################################
+######################################
+###
+
+
+  # Add Elastic Beanstalk #
+  sampleApplication2:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement2
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion2:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication2
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment2:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication2
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion2
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate2
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP         
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 401
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline2:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ portal-back, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner2
+                Repo: !Ref GitHubRepository2
+                Branch: !Ref GitHubBranch2
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken2
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication2
+                EnvironmentName: !Ref Environment2
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment2
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName2
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate2:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName2
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName2
+          ValidationDomain: !Ref DomainName2
+      SubjectAlternativeNames:
+        - !Ref DomainName2
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 2 ################
+######################################
+######################################
+###
+
+
+
+###
+################################
+######################################
+######### Instance 3 ################
+######################################
+######################################
+###
+
+
+  # Add Elastic Beanstalk #
+  sampleApplication3:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement3
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion3:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication3
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment3:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication3
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion3
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate3
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP         
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 200
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline3:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ follow-front, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner3
+                Repo: !Ref GitHubRepository3
+                Branch: !Ref GitHubBranch3
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken3
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication3
+                EnvironmentName: !Ref Environment3
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet3:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment3
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName3
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate3:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName3
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName3
+          ValidationDomain: !Ref DomainName3
+      SubjectAlternativeNames:
+        - !Ref DomainName3
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 3 ################
+######################################
+######################################
+###
+
+
+
+###
+################################
+######################################
+######### Instance 4 ################
+######################################
+######################################
+###
+
+
+  # Add Elastic Beanstalk #
+  sampleApplication4:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement4
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion4:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication4
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment4:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication4
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion4
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate4
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP          
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 401
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline4:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ follow-back, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner4
+                Repo: !Ref GitHubRepository4
+                Branch: !Ref GitHubBranch4
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken4
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication4
+                EnvironmentName: !Ref Environment4
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet4:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment4
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName4
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate4:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName4
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName4
+          ValidationDomain: !Ref DomainName4
+      SubjectAlternativeNames:
+        - !Ref DomainName4
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 4 ################
+######################################
+######################################
+###
+
+
+
+
+###
+################################
+######################################
+######### Instance 5 ################
+######################################
+######################################
+###
+
+
+  # Add Elastic Beanstalk #
+  sampleApplication5:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement5
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion5:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication5
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment5:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication5
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion5
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate5
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP          
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 200
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline5:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ marketplace-front, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner5
+                Repo: !Ref GitHubRepository5
+                Branch: !Ref GitHubBranch5
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken5
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication5
+                EnvironmentName: !Ref Environment5
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet5:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment5
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName5
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate5:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName5
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName5
+          ValidationDomain: !Ref DomainName5
+      SubjectAlternativeNames:
+        - !Ref DomainName5
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 5 ################
+######################################
+######################################
+###
+
+
+
+###
+################################
+######################################
+######### Instance 6 ################
+######################################
+######################################
+###
+
+
+  # Add Elastic Beanstalk #
+  sampleApplication6:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement6
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion6:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication6
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment6:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication6
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.11 running Docker
+      VersionLabel: !Ref AppVersion6
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SSHSourceRestriction
+          Value: !Join 
+            - ''
+            - - 'tcp,22,22,'
+              - !Ref BastionSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref BeanstalkSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: webmin
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !Ref PrivateSubnet
+              - !Ref PrivateSubnet1
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value:  !Join
+            - ','
+            - - !Ref PublicSubnet
+              - !Ref PublicSubnet1
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+        - Namespace: aws:elbv2:listener:443
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elbv2:listener:443
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: aws:elbv2:listener:443
+          OptionName: SSLCertificateArns
+          Value: !Ref ACMCertificate6
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: 80
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP         
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 401
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: env
+          Value: !Ref MyEnv
+  # Add Elastic Beanstalk #
+
+  # Set Pipeline #
+  CodePipeline6:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: !Join [ "-", [ marketplace-back, !Ref MyEnv ] ]
+      RoleArn: !GetAtt 
+        - ServiceRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner6
+                Repo: !Ref GitHubRepository6
+                Branch: !Ref GitHubBranch6
+                PollForSourceChanges: false
+                OAuthToken: !Ref GitHubOAuthToken6
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuilProject
+              OutputArtifacts:
+                - Name: BuildOutput
+              InputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ElasticBeanstalk
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref sampleApplication6
+                EnvironmentName: !Ref Environment6
+              InputArtifacts:
+                - Name: BuildOutput
+      # Set Pipeline #
+
+  # Set Route53 #
+  SampleRecordSet6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment6
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName6
+      Type: A
+  # Set Route53 #
+
+  # Set CertificateManager #
+  ACMCertificate6:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName6
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName6
+          ValidationDomain: !Ref DomainName6
+      SubjectAlternativeNames:
+        - !Ref DomainName6
+      ValidationMethod: DNS
+  # Set CertificateManager #
+
+
+
+
+
+###
+################################
+######################################
+######### End Instance 6 ################
+######################################
+######################################
+###
+
+
+
+
+
+
+
+
+
+
+# Set CertificateManager #
+Outputs:
+  ACMCertificateArn:
+    Value: !Ref ACMCertificate
+  Bastion:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment
+          - EndpointURL
+  ACMCertificateArn2:
+    Value: !Ref ACMCertificate2
+  Bastion2:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL2:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment2
+          - EndpointURL
+  ACMCertificateArn3:
+    Value: !Ref ACMCertificate3
+  Bastion3:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL3:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment3
+          - EndpointURL
+  ACMCertificateArn4:
+    Value: !Ref ACMCertificate4
+  Bastion4:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL4:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment4
+          - EndpointURL
+  ACMCertificateArn5:
+    Value: !Ref ACMCertificate5
+  Bastion5:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL5:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment5
+          - EndpointURL
+  ACMCertificateArn6:
+    Value: !Ref ACMCertificate6
+  Bastion6:
+    Description: IP Address of the Bastion host
+    Value: !Ref BastionIPAddress
+  URL6:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Environment6
+          - EndpointURL
+# Set CertificateManager #

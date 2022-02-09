@@ -1,0 +1,171 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CI/CD pipeline for GitHub projects
+
+# input Configuration #
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Parametres globaux"
+        Parameters: 
+          - CodeBuildEnvironmentImage
+      - 
+        Label: 
+          default: "Portal Frontend"
+        Parameters: 
+          - GitHubOwner
+          - GitHubRepository
+          - GitHubBranch
+          - GitHubOAuthToken
+          - NameEnvironement
+          - DomainName
+      - 
+        Label: 
+          default: "Portal Backend"
+      - 
+        Label: 
+          default: "Follow Frontend"
+      - 
+        Label: 
+          default: "Follow Backend"
+    ParameterLabels:
+      NameEnvironement:
+        default: "Indiquer un nom d'environement AWS :"
+      GitHubOwner: 
+        default: "Nom du compte github :"
+      GitHubRepository: 
+        default: "Nom du repository github :"
+      GitHubBranch: 
+        default: "Nom de la branch github :"
+      GitHubOAuthToken: 
+        default: "Token OAuth du compte github"
+      DomainName:
+        default: "Url de l'environement :"
+      CodeBuildEnvironmentImage: 
+        default: "Docker images provided by CodeBuild : https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html"
+Parameters:
+  GitHubOwner:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: RaphaelWeys
+  GitHubRepository:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: test-aws-react-portal
+  GitHubBranch:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: main
+  CodeBuildEnvironmentImage:
+    Type: String
+    Default: 'aws/codebuild/standard:5.0'
+  GitHubOAuthToken: 
+    Type: String
+    NoEcho: true
+    MinLength: 40
+    MaxLength: 40
+    Default: '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'
+  NameEnvironement:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: test
+  DomainName:
+    Type: String
+    Default: test.yem-energy.net
+# input Configuration #
+
+
+
+Resources:
+# Add Permission IAM #
+  ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - codebuild.amazonaws.com
+                - ec2.amazonaws.com
+                - codepipeline.amazonaws.com
+                - elasticloadbalancing.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  WebServerInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref ServiceRole
+  # Add Permission IAM #
+
+
+   # Add Elastic Beanstalk #
+  sampleApplication:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: !Ref NameEnvironement
+      Description: AWS Elastic Beanstalk Docker Sample Application
+  AppVersion:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Properties:
+      ApplicationName: !Ref sampleApplication
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: !Join 
+          - '-'
+          - - elasticbeanstalk-samples
+            - !Ref 'AWS::Region'
+        S3Key: docker-sample.zip
+  Environment:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !Ref sampleApplication
+      Description: AWS Elastic Beanstalk Environment running Docker Sample Application
+      SolutionStackName: 64bit Amazon Linux 2 v3.4.10 running Docker
+      VersionLabel: !Ref AppVersion
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref WebServerInstanceProfile
+  # Add Elastic Beanstalk #
+
+
+  SampleRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !GetAtt 
+          - Environment
+          - EndpointURL
+        HostedZoneId: Z3Q77PNBQS71R4
+      HostedZoneId: Z0495286FEYVFH9EZJN2
+      Name: !Ref DomainName
+      Type: A
+
+  
+  ACMCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          ValidationDomain: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Ref DomainName
+      ValidationMethod: DNS
+
+
+Outputs:
+  ACMCertificateArn:
+    Value: !Ref ACMCertificate

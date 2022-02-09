@@ -1,0 +1,203 @@
+#Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+#Permission is hereby granted, free of charge, to any person obtaining a copy of this
+#software and associated documentation files (the "Software"), to deal in the Software
+#without restriction, including without limitation the rights to use, copy, modify,
+#merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+#permit persons to whom the Software is furnished to do so.
+
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+#INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+#PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+#OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Defense in Depth using AWS WAF Managed Rules
+# Using only AWS Managed Rules for the Application Layer on Application Load Balancers
+# https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Defence in depth with AWS WAF Managed Rules.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Public Layer AWS WAF WebACL Name"
+        Parameters:
+          - NameEnvironement
+      -
+        Label:
+          default: "Arn of Loadbalancer"
+        Parameters:
+          - arnLoadbalancer
+Parameters:
+  NameEnvironement:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: test
+  arnLoadbalancer:
+    Type: String
+    Default: arn:aws:elasticloadbalancing:eu-west-3:812617625241:loadbalancer/app/awseb-AWSEB-FBF2L022OX5E/156b213a03ee105e
+  arncloudfront:
+    Type: String
+    Default: arn:aws:elasticloadbalancing:eu-west-3:812617625241:loadbalancer/app/awseb-AWSEB-FBF2L022OX5E/156b213a03ee105e
+Resources:
+
+
+
+  PublicApplicationLayerWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Ref NameEnvironement
+      Scope: REGIONAL
+      Description: Public Application Network Web ACL using AWS Managed Rules.
+      DefaultAction: 
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: !Join
+            - ""
+            - - !Ref NameEnvironement
+              - "Metric"
+      Tags:
+        - Key: Layer
+          Value: Application
+      Rules: 
+        - Name: AWS-AWSManagedRulesCommonRuleSet
+          Priority: 0
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: MetricForAMRCRS
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet 
+              ExcludedRules:
+              - Name: NoUserAgent_HEADER
+              - Name: UserAgent_BadBots_HEADER
+              - Name: SizeRestrictions_QUERYSTRING
+              - Name: SizeRestrictions_Cookie_HEADER
+              - Name: SizeRestrictions_BODY
+              - Name: SizeRestrictions_URIPATH
+              - Name: EC2MetaDataSSRF_BODY
+              - Name: EC2MetaDataSSRF_COOKIE
+              - Name: EC2MetaDataSSRF_URIPATH
+              - Name: EC2MetaDataSSRF_QUERYARGUMENTS
+              - Name: GenericLFI_QUERYARGUMENTS
+              - Name: GenericLFI_URIPATH
+              - Name: GenericLFI_BODY
+              - Name: RestrictedExtensions_URIPATH
+              - Name: RestrictedExtensions_QUERYARGUMENTS
+              - Name: GenericRFI_QUERYARGUMENTS
+              - Name: GenericRFI_BODY
+              - Name: GenericRFI_URIPATH
+              - Name: CrossSiteScripting_COOKIE
+              - Name: CrossSiteScripting_QUERYARGUMENTS
+              - Name: CrossSiteScripting_BODY
+              - Name: CrossSiteScripting_URIPATH
+        - Name: AWS-AWSManagedRulesLinuxRuleSet
+          Priority: 1
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: MetricForAMRLinux
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesLinuxRuleSet 
+              ExcludedRules:
+              - Name: LFI_URIPATH
+              - Name: LFI_QUERYARGUMENTS
+              - Name: LFI_BODY
+
+  WebACLfront:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Ref NameEnvironement
+      Scope: CLOUDFRONT
+      Description: Public Application Network Web ACL using AWS Managed Rules.
+      DefaultAction: 
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: !Join
+            - ""
+            - - !Ref NameEnvironement
+              - "Metric"
+      Tags:
+        - Key: Layer
+          Value: Application
+      Rules: 
+        - Name: AWS-AWSManagedRulesCommonRuleSet
+          Priority: 0
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: MetricForAMRCRS
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet 
+              ExcludedRules:
+              - Name: NoUserAgent_HEADER
+              - Name: UserAgent_BadBots_HEADER
+              - Name: SizeRestrictions_QUERYSTRING
+              - Name: SizeRestrictions_Cookie_HEADER
+              - Name: SizeRestrictions_BODY
+              - Name: SizeRestrictions_URIPATH
+              - Name: EC2MetaDataSSRF_BODY
+              - Name: EC2MetaDataSSRF_COOKIE
+              - Name: EC2MetaDataSSRF_URIPATH
+              - Name: EC2MetaDataSSRF_QUERYARGUMENTS
+              - Name: GenericLFI_QUERYARGUMENTS
+              - Name: GenericLFI_URIPATH
+              - Name: GenericLFI_BODY
+              - Name: RestrictedExtensions_URIPATH
+              - Name: RestrictedExtensions_QUERYARGUMENTS
+              - Name: GenericRFI_QUERYARGUMENTS
+              - Name: GenericRFI_BODY
+              - Name: GenericRFI_URIPATH
+              - Name: CrossSiteScripting_COOKIE
+              - Name: CrossSiteScripting_QUERYARGUMENTS
+              - Name: CrossSiteScripting_BODY
+              - Name: CrossSiteScripting_URIPATH
+        - Name: AWS-AWSManagedRulesLinuxRuleSet
+          Priority: 1
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: MetricForAMRLinux
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesLinuxRuleSet 
+              ExcludedRules:
+              - Name: LFI_URIPATH
+              - Name: LFI_QUERYARGUMENTS
+              - Name: LFI_BODY
+        
+  SampleWebACLAssociation:
+    Type: 'AWS::WAFv2::WebACLAssociation'
+    Properties:
+      WebACLArn: !GetAtt PublicApplicationLayerWebACL.Arn
+      ResourceArn: !Ref arnLoadbalancer
+
+  SampleWebACLAssociationfront:
+    Type: 'AWS::WAFv2::WebACLAssociation'
+    Properties:
+      WebACLArn: !GetAtt WebACLfront.Arn
+      ResourceArn: !Ref arncloudfront

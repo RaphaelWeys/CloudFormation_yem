@@ -1,0 +1,121 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Elasticbeanstalk test template",
+    "Parameters": {
+        "GitHubOAuthToken": {
+            "Type": "String",
+            "NoEcho": "true",
+            "MinLength": "40",
+            "MaxLength": "40",
+            "AllowedPattern": "'[a-z0-9]*'",
+            "Description": "GitHub OAuth token"
+        }
+    },
+
+    "Resources": {
+        "WebServerRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/"
+            }
+        },
+        "WebServerRolePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "WebServerRole",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "NotAction": "iam:*",
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "WebServerRole"
+                    }
+                ]
+            }
+        },
+        "WebServerInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "WebServerRole"
+                    }
+                ]
+            }
+        },
+        "sampleApplication": {
+            "Type": "AWS::ElasticBeanstalk::Application",
+            "Properties": {
+                "ApplicationName": "sampleApplication",
+                "Description": "AWS Elastic Beanstalk Docker Sample Application"
+            }
+        },
+        "AppVersion": {
+            "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+            "Properties": {
+                "ApplicationName": {
+                    "Ref": "sampleApplication"
+                },
+                "Description": "Version 1.0",
+                "SourceBundle": {
+                    "S3Bucket": {
+                        "Fn::Join": [
+                            "-",
+                            [
+                                "elasticbeanstalk-samples",
+                                {
+                                    "Ref": "AWS::Region"
+                                }
+                            ]
+                        ]
+                    },
+                    "S3Key": "docker-sample.zip"
+                }
+            }
+        },
+        "Environment": {
+            "Type": "AWS::ElasticBeanstalk::Environment",
+            "Properties": {
+                "ApplicationName": {
+                    "Ref": "sampleApplication"
+                },
+                "Description": "AWS Elastic Beanstalk Environment running Docker Sample Application",
+                "SolutionStackName": "64bit Amazon Linux 2 v3.4.10 running Docker",
+                "VersionLabel": {
+                    "Ref": "AppVersion"
+                },
+                "OptionSettings": [
+                    {
+                        "Namespace": "aws:autoscaling:launchconfiguration",
+                        "OptionName": "IamInstanceProfile",
+                        "Value": {
+                            "Ref": "WebServerInstanceProfile"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
